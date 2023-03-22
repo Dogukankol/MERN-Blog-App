@@ -77,14 +77,6 @@ const PostDetails = ({ location, match }) => {
             </Typography>
             <div>
               <Button
-                color="primary"
-                variant="outlined"
-                startIcon={<EditIcon />}
-                onClick={openEditMode}
-              >
-                Düzenle
-              </Button>{" "}
-              <Button
                 color="secondary"
                 variant="outlined"
                 onClick={removePost}
