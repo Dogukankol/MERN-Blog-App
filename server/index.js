@@ -1,11 +1,11 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import postRoutes from './routes/posts.js';
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import postRoutes from "./routes/posts.js";
 
-const app = express()
+const app = express();
 dotenv.config();
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -19,21 +19,20 @@ app.get("/", (req, res) => {
     })
 });
 
+app.use("/posts", postRoutes);
 
-app.use("/posts", postRoutes)
+const PORT = process.env.PORT || 5000;
 
-mongoose.set("strictQuery", false);
-
-mongoose.connect(process.env.CONNECTION_URL, {
+mongoose
+  .connect(process.env.CONNECTION_URL, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port: ${PORT} `));
+  })
+  .catch((error) => {
+    console.error(error.message);
+  });
 
-}).catch(error => {
-    app.listen(process.env.PORT, () => {
-        console.log(`Welldone ${process.env.PORT}`)
-    })
-}).catch((error) => {
-    console.error(error.message)
-});
-
+mongoose.set("useFindAndModify", false);

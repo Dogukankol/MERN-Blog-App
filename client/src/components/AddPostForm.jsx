@@ -1,21 +1,22 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch } from 'react-redux'
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     TextField,
     Input,
     Select,
     MenuItem
 } from '@material-ui/core';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm  } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup'
 import FileBase64 from 'react-file-base64'
+import { createPost } from '../actions/post'
 
 const useStyles = makeStyles(theme => ({
     apper: {
@@ -46,11 +47,12 @@ const postSchema = yup.object().shape({
     title: yup.string().required(),
     subtitle: yup.string().required(),
     content: yup.string().min(20).required(),
-    tag: yup.mixed().oneOf(tags),
+    tags: yup.mixed().oneOf(tags),
 });
 
 
 export const AddPostForm = ({ open, handleClose }) => {
+    const dispatch = useDispatch();
     const [file, setFile] = useState(null);
     const [select, setSelect] = useState(false);
     const classes = useStyles();
@@ -69,6 +71,19 @@ export const AddPostForm = ({ open, handleClose }) => {
         handleClose();
     }
 
+    const onSubmit = (data) => {
+        dispatch(
+            createPost({
+                ...data,
+                tag: select,
+                image: file
+            }
+        ))
+        console.log({ ...data, file, select })
+        clearForm();
+
+    }
+
     return (
         <Dialog
             open={open}
@@ -81,7 +96,7 @@ export const AddPostForm = ({ open, handleClose }) => {
             </DialogTitle>
             <DialogContent>
                 <div className={classes.root}>
-                    <form noValidate autoComplete='off'>
+                    <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                         <TextField
                             id="title"
                             label="Başlık"
@@ -115,6 +130,8 @@ export const AddPostForm = ({ open, handleClose }) => {
                             defaultValue={tags[0].tagName}
                             value={select}
                             onChange={handleChange}
+                        // {...register('tags', { required: true })}
+
                         >
                             {
                                 tags.map(function (tag, index) {
@@ -122,6 +139,7 @@ export const AddPostForm = ({ open, handleClose }) => {
                                 })
                             }
                         </Select>
+                        
                         <TextField
                             id="content"
                             label="İçerik"
@@ -136,13 +154,13 @@ export const AddPostForm = ({ open, handleClose }) => {
                             minRows={4}
                         />
 
-                        <FileBase64 multiple={false} onDone={({base64}) => setFile(base64)} />
+                        <FileBase64 multiple={false} onDone={({ base64 }) => setFile(base64)} />
                     </form>
                 </div>
             </DialogContent>
             <DialogActions>
                 <Button onClick={clearForm}>Vazgeç</Button>
-                <Button onClick={handleClose} autoFocus color="primary" variant="outlined" type="submit">
+                <Button onClick={() => handleSubmit(onSubmit)()} autoFocus color="primary" variant="outlined" type="submit" >
                     Yayınla
                 </Button>
             </DialogActions>
